@@ -117,21 +117,23 @@ The repository had GitHub's **contributor-only interaction-limit** turned on for
 
 The shaded region on the chart is the confirmed interaction-limit window. Per-day activity across and around it:
 
-| date | total | external | contrib | owner | signature |
-|---|---|---|---|---|---|
-| 2026-04-11 | 17 | 12 | 1 | 0 | normal |
-| 2026-04-12 | 12 | 12 | 0 | 0 | normal |
-| 2026-04-13 | 15 | 12 | 2 | 0 | normal |
-| 2026-04-14 | 21 | 12 | 2 | 0 | normal |
-| **2026-04-15** | **164** | **22** | **0** | **1** | surge (likely trigger) |
-| **2026-04-16** | **2** | **0** | **2** | **0** | 🔒 interaction-limit |
-| **2026-04-17** | **2** | **0** | **1** | **1** | 🔒 interaction-limit |
-| 2026-04-18 | 0 | — | — | — | silent |
-| **2026-04-19** | **1** | **0** | **0** | **1** | 🔒 interaction-limit |
-| 2026-04-20 | 0 | — | — | — | silent |
-| 2026-04-21 | 0 | — | — | — | silent (Reddit post 14:27 UTC) |
-| 2026-04-22 | 3 | 2 | 0 | 1 | first external filer |
-| 2026-04-23 | 22 | **17 unique** | 0 | 0 | pent-up flood |
+The first four count columns are issue counts. `unique external authors` is separate, because one person can file multiple issues in a day.
+
+| date | total issues | external issues | contrib issues | owner issues | unique external authors | signature |
+|---|---:|---:|---:|---:|---:|---|
+| 2026-04-11 | 17 | 16 | 1 | 0 | 12 | normal |
+| 2026-04-12 | 12 | 12 | 0 | 0 | 12 | normal |
+| 2026-04-13 | 15 | 13 | 2 | 0 | 12 | normal |
+| 2026-04-14 | 21 | 19 | 2 | 0 | 12 | normal |
+| **2026-04-15** | **164** | **27** | **0** | **137** | **22** | surge (likely trigger) |
+| **2026-04-16** | **2** | **0** | **2** | **0** | **0** | interaction-limit |
+| **2026-04-17** | **2** | **0** | **1** | **1** | **0** | interaction-limit |
+| 2026-04-18 | 0 | 0 | 0 | 0 | 0 | silent |
+| **2026-04-19** | **1** | **0** | **0** | **1** | **0** | interaction-limit |
+| 2026-04-20 | 0 | 0 | 0 | 0 | 0 | silent |
+| 2026-04-21 | 0 | 0 | 0 | 0 | 0 | silent (Reddit post 14:27 UTC) |
+| 2026-04-22 | 3 | 2 | 0 | 1 | 2 | first external filer |
+| 2026-04-23 | 22 | **22** | 0 | 0 | **17** | pent-up flood |
 
 **Direct evidence** from Reddit user `xii` on 2026-04-21 ([original comment](https://www.reddit.com/r/ClaudeCode/comments/1scz5kk/comment/ohe4en3/)):
 
@@ -173,10 +175,6 @@ Days with zero new issues filed at all (from any author), grouped into consecuti
 | 2025-11-23 .. 2025-11-30 | 8 |
 
 These are all in the project's pre-adoption period and are less sensitive than the interaction-limit signature above — they'd only detect a full tracker-disable, not contributor-only mode. They are included for completeness.
-
-### 6.5 Why the first detector missed this
-
-The first version of this analysis searched for "days with zero issues filed of any kind" — a signature that fires only when `has_issues: false`. GitHub's interaction-limit-to-contributors is a different feature: issue creation continues, just for a restricted audience. Once the detection criterion is corrected to *"external authors = 0 AND at least one contributor/owner/collaborator is filing"* the Apr 16–19 interaction-limit window becomes visible in the data. The updated `scripts/analyze_issues.py` uses the corrected criterion and will catch future instances.
 
 ## 7. Supplementary charts
 

@@ -39,40 +39,36 @@ The quoted error text *"An owner of this repository has limited the ability to c
 
 The `issues-graphql.jsonl.gz` dataset supports the Reddit account. Per-day activity around the event, from the full corpus:
 
-| date | total issues | external authors | contributor authors | owner authors | signature |
-|---|---|---|---|---|---|
-| 2026-04-11 | 17 | 12 | 1 | 0 | normal |
-| 2026-04-12 | 12 | 12 | 0 | 0 | normal |
-| 2026-04-13 | 15 | 12 | 2 | 0 | normal |
-| 2026-04-14 | 21 | 12 | 2 | 0 | normal |
-| **2026-04-15** | **164** | **22** | **0** | **1** | **surge — likely the trigger** |
-| **2026-04-16** | **2** | **0** | **2** | **0** | **🔒 interaction-limit signature** |
-| **2026-04-17** | **2** | **0** | **1** | **1** | **🔒 interaction-limit signature** |
-| **2026-04-18** | 0 | 0 | 0 | 0 | silent |
-| **2026-04-19** | **1** | **0** | **0** | **1** | **🔒 interaction-limit signature** |
-| **2026-04-20** | 0 | 0 | 0 | 0 | silent |
-| **2026-04-21** | 0 | 0 | 0 | 0 | silent (Reddit post goes up 14:27 UTC) |
-| 2026-04-22 | 3 | 2 | 0 | 1 | first external filer after gap |
-| **2026-04-23** | **22** | **17** | **0** | **0** | pent-up flood |
+The first four count columns are issue counts. The `unique external authors` column is separate, because a single reporter can file more than one issue on the same day.
+
+| date | total issues | external issues | contributor issues | owner issues | unique external authors | signature |
+|---|---:|---:|---:|---:|---:|---|
+| 2026-04-11 | 17 | 16 | 1 | 0 | 12 | normal |
+| 2026-04-12 | 12 | 12 | 0 | 0 | 12 | normal |
+| 2026-04-13 | 15 | 13 | 2 | 0 | 12 | normal |
+| 2026-04-14 | 21 | 19 | 2 | 0 | 12 | normal |
+| **2026-04-15** | **164** | **27** | **0** | **137** | **22** | **surge — likely the trigger** |
+| **2026-04-16** | **2** | **0** | **2** | **0** | **0** | **interaction-limit signature** |
+| **2026-04-17** | **2** | **0** | **1** | **1** | **0** | **interaction-limit signature** |
+| **2026-04-18** | 0 | 0 | 0 | 0 | 0 | silent |
+| **2026-04-19** | **1** | **0** | **0** | **1** | **0** | **interaction-limit signature** |
+| **2026-04-20** | 0 | 0 | 0 | 0 | 0 | silent |
+| **2026-04-21** | 0 | 0 | 0 | 0 | 0 | silent (Reddit post goes up 14:27 UTC) |
+| 2026-04-22 | 3 | 2 | 0 | 1 | 2 | first external filer after gap |
+| **2026-04-23** | **22** | **22** | **0** | **0** | **17** | pent-up flood |
 
 The pattern in isolation:
 
 - The 31-day window from 2026-03-15 → 2026-04-14 has external-author filings on **every single active day** (31 of 31). That's the baseline.
-- 2026-04-15 spikes to 164 issues filed (including known PSA-type bug reports about new breakage).
-- For the following six days, **no external author files an issue**, while contributors and the owner continue filing a handful. This matches the contributor-only interaction-limit signature: external authors absent, pre-existing contributors still allowed through.
+- 2026-04-15 spikes to 164 issues filed: 27 external issues from 22 unique external authors, plus 137 owner-filed issues.
+- For the following six days, **no external user files an issue**. On the active days in that window, contributors and the owner continue filing a handful. This matches the contributor-only interaction-limit signature: external users absent, pre-existing contributors still allowed through.
 - Then on 2026-04-22 (one day after the Reddit post made the restriction visible publicly), a community filer appears. On 2026-04-23, seventeen unique external reporters file — the pent-up demand pouring through as soon as the gate reopened. The five bug tickets reproduced in [`issue-snapshot-2026-04-23.md`](issue-snapshot-2026-04-23.md) are from that cohort.
 
 The date range matches: the Reddit post lands on 2026-04-21, and community filings resume on 2026-04-22. Whether the owner saw the Reddit post and lifted the restriction in response, or the restriction was always scheduled to expire around that point, cannot be determined from the data alone — but the timing is tight.
 
-## Why the first detector missed this
-
-The first pass of the analysis looked for days where the issue tracker was **completely disabled** (zero issues filed of any kind). It found only three multi-day runs of zero activity, all in the project's pre-adoption period. Based on that, §6.3 of the original software-quality README said the data did not support a tracker-restriction pattern.
-
-That was under-sensitive. Interaction-limit-to-contributors doesn't produce a zero-issue day — it produces a day where external authors are absent but contributors and owner are still filing. Once the detection criterion is corrected to *"external authors = 0 AND at least one contributor/owner/collaborator is filing"*, the April 16–19 interaction-limit window becomes visible in the data. The updated `scripts/analyze_issues.py` uses the corrected criterion.
-
 ## Candidate earlier events
 
-Running the corrected criterion against the full corpus also flags four days in November 2025:
+Using the same interaction-limit signature against the full corpus also flags four days in November 2025:
 
 | date | total issues | external | contributor | owner |
 |---|---|---|---|---|
@@ -85,6 +81,6 @@ These are much weaker signals: all four days are low-volume (1–3 issues each),
 
 ## What this means
 
-The repository owner turned on an interaction limit that appears to have prevented external users from filing bug reports for approximately six days (2026-04-16 through 2026-04-21), during what the data shows was an acute period of user-reported breakage (164 bug reports on 2026-04-15 alone). When the limit was lifted, 22 of the first 24 hours of external filings (91%) were concentrated on 2026-04-23 — the pent-up-demand flood is evidence that real users had been trying to file and had been unable to do so.
+The repository owner turned on an interaction limit that appears to have prevented external users from filing bug reports for approximately six days (2026-04-16 through 2026-04-21), immediately after an acute issue-volume spike on 2026-04-15. When the limit lifted, 22 external issues from 17 unique external authors arrived on 2026-04-23 — evidence that real users had reports to file.
 
 This is a factual observation about the project's moderation behaviour, not an imputation of motive. Legitimate reasons to enable interaction-limit include responding to a spam wave, a single angry user filing many duplicates, or a CI/spam attack. I'm not privy to whichever was the case. The observable fact is: **external-user reporting appears to have been unavailable for six days in the middle of a period when external users had a lot of new breakage to report against the latest release.**
