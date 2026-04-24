@@ -19,6 +19,10 @@
 
 5. **The live installer matches the repo exactly; no unadvertised install.cmem.ai endpoints exist; the binary has no telemetry/beacon.** `install.cmem.ai/openclaw.sh` is byte-identical to `openclaw/install.sh` (sha256 `78c39b15d15c265af2543cf422ad57e03d9a91494ef4c0a6038fe426085343d4`). `install.cmem.ai/install.sh` is a 703-byte redirect shim deprecating curl-pipe-bash in favor of `npx claude-mem install`. All of `beacon`, `telemetry`, `update.sh`, `uninstall.sh`, `api/health`, `metrics` return 404. The infrastructure the project advertises is the infrastructure it operates; there is no evidence of out-of-band deployment or hidden endpoints.
 
+6. **The full stargazer graph shows a measurable amplification layer on top of real popularity.** A GraphQL v4 fetch captured all **66,433** stargazer records at the review pin, resolving the earlier REST pagination cap. The pre-December-2025 baseline was **3.3%** throwaway-shaped accounts; the April 13 calendar week reached **13.1%** across **13,546** stars, the largest Monday-Sunday week in the repo's history. The base remains real — 77% of stargazers have accounts older than two years — but the full graph shows an additive amplification layer.
+
+7. **Software quality and issue-tracker governance are part of the concern.** The repo had GitHub's contributor-only interaction-limit active for approximately six days in April 2026, with external issue creation dropping to zero while contributor/owner activity continued. Within 24 hours of the limit lifting, five independent community bug reports arrived against v12.1.2 -> v12.3.9. Across the issue corpus, 121 issues (10.9%) were closed as "not planned" and 104 (9.3%) were locked. This is separate from intent; it describes the maintenance pressure around a tool that sits inside developer agent loops.
+
 ---
 
 ## 2. Per-priority findings
@@ -192,7 +196,7 @@ src/cli/handlers/file-context.ts:290:      additionalContext: timeline,
 src/cli/handlers/file-context.ts:291:      permissionDecision: 'allow',
 ```
 
-The prior characterization ("rewrites Claude's broad `Read` tool calls to `limit: 1`") is **approximately correct**: the hook respects a user-supplied `limit` if present, otherwise defaults it to 1 and injects `timeline` as `additionalContext` with `permissionDecision: 'allow'`. Claude's subsequent read of the injected timeline is indistinguishable — from the model's view — from file content it just read. My concern is that anything reaching the observation database can become context Claude later treats as prior work.
+The source-level behavior is this: the hook respects a user-supplied `limit` if present, otherwise defaults it to 1 and injects `timeline` as `additionalContext` with `permissionDecision: 'allow'`. Claude's subsequent read of the injected timeline is indistinguishable — from the model's view — from file content it just read. My concern is that anything reaching the observation database can become context Claude later treats as prior work.
 
 **Interpretation.** `worker-service.cjs` at HEAD is a faithful bundle of the current TypeScript. It contains the concerning features already described — no more, no less. I did not find novel surface area hidden in the bundle. The `handleImport` endpoint at `app.post("/api/import", this.handleImport.bind(this))` is the ingest path; it is unauthenticated, and the observation data it accepts is what the Read-hook injects into Claude's context as "timeline." The loop closes: write anything to `POST /api/import` → Claude reads a file in that project → hook injects your payload as `additionalContext`. That is a context-injection path I would not want inside my own agent loop.
 
@@ -217,7 +221,7 @@ The prior characterization ("rewrites Claude's broad `Read` tool calls to `limit
 **Top repos by stars (non-fork)** — 53 non-fork repos total; only one is over 100 stars:
 
 ```
- 66,205  2025-08-31  claude-mem                (the subject)
+ 66,433  2025-08-31  claude-mem                (the subject; stargazer dataset at review pin)
      43  2025-10-01  mcp-client-cli            Command-line interface for any MCP server
      19  2026-02-06  aims                      ⚡ AI Messenger Service — watch AI bots communicate in real time
      18  2026-02-01  crab-mem  (ARCHIVED)      🦀 Continuous cognition for OpenClaw agents
@@ -317,35 +321,22 @@ Market snapshot captured **2026-04-24 UTC**; these values are volatile.
 
 **Commands run**
 
-- `gh api "repos/thedotmack/claude-mem/stargazers?per_page=100&page=N" -H "Accept: application/vnd.github.star+json"` — paginated.
-- `gh api users/${login}` for a uniform random sample of 200 stargazers from the accessible pages.
+- `python scripts/fetch_stars.py` — paginated GitHub GraphQL v4's `repository.stargazers` connection with `orderBy: {field: STARRED_AT, direction: ASC}`.
+- `python scripts/analyze_stars.py` — regenerated the per-day CSV, weekly rollup, account-age buckets, and chart inputs.
 
-**Hard limitation encountered.** GitHub's REST `/stargazers` endpoint caps out at **page 400** (40,000 results). Pages 420+ returned errors. Of the repo's 66,205 stars, **only the oldest 40,000 are enumerable via this endpoint.** Full-history enumeration would need GitHub GraphQL v4 (different limits) or a pre-built archive service. The previous session did not note this cap; I am flagging it here.
+**What changed from the initial REST pass.** GitHub's REST `/stargazers` endpoint capped out at page 400 (40,000 results), so the first pass only covered the oldest slice of the graph. The GraphQL fetch resolves that limitation: it captured all **66,433** stargazer records at the review pin, from `vlasky @ 2025-09-09T06:44:10Z` through `ajankuv @ 2026-04-23T23:33:17Z`.
 
-**What the sample shows.** 1,600 records pulled across pages 1–3, 30..390 (every 30), and 659–662 (failed). Page sampling biases the per-day distribution (each page is 100 stars of roughly consecutive time), so the per-day spike analysis is not reliable. Monthly distribution of the sampled set:
+**Full-corpus findings.**
 
-```
-2025-09   10
-2025-10  282
-2025-11    8
-2025-12  300
-2026-01  200
-2026-02  500
-2026-03  300
-```
+- 77% of stargazers have accounts older than two years. The repo's base popularity is real.
+- Pre-December-2025 baseline: **3.3%** throwaway-shaped accounts, **0%** accounts created less than one day before starring.
+- Full corpus: **9.3%** throwaway-shaped accounts, **1.1%** accounts created less than one day before starring.
+- April 13 calendar week: **13,546** stars, **13.1%** throwaway-shaped accounts, **1.2%** accounts created less than one day before starring, and **0.78%** created within one hour of starring.
+- The strongest April cohort includes repeated dictionary-plus-suffix account names, mostly 0 followers and 0-1 repos, created hours before starring.
 
-But again, this is shaped by which pages I happened to sample, not by real volume.
+**Interpretation.** The full graph shows measurable star-count amplification that rises materially over time and peaks in the April 13 calendar week. That does not mean the repo's popularity is artificial; it means the advertised star count appears to include an additive amplification layer on top of a large organic base.
 
-**200 random stargazer profile sample** (more representative — uniform over unique logins in the sample pool):
-
-- Accounts younger than 30 days: **0 (0%)**.
-- Accounts younger than 90 days: **4 (2.0%)**.
-- 0 repos + 0 followers (throwaway-shaped): **16 (8.0%)**.
-- Account-creation year distribution spans 2008–2026 with normal weighting (30 in 2025, 5 in 2026; peak years 2018–2024).
-
-**Interpretation.** Nothing in the sample met the threshold I was using for account-quality concern (<5% throwaway vs >15% would be decisive). 8% zero-repo-zero-follower is slightly elevated but within organic range for a trendy dev-tool repo. The fact that **zero accounts** in the sample were under 30 days old and only 2% were under 90 days is especially informative — paid or automated star services typically produce young accounts in higher density. **The accessible 60% of the star graph looked mostly organic.** I cannot speak to the remaining 26k stars past page 400 from this REST sample alone.
-
-**Confidence: medium** for the claim "the 40k-pages-accessible slice of star graph is organic." **Low** for any claim about the unreachable 26k-star tail.
+**Confidence: high.** The GraphQL dataset covers the full stargazer connection at the review pin and is reproducible from the scripts in this repo. See §8 and [`evidence/stargazers/`](evidence/stargazers/) for the detailed tables and artifacts.
 
 ---
 
@@ -373,12 +364,12 @@ But again, this is shaped by which pages I happened to sample, not by real volum
 
 ## 4. What remains unresolved
 
+Only two questions remain outside the evidence I could collect from this host:
+
 1. **$CMEM deployer wallet and funding source.** Requires a paid Solana RPC (Helius / QuickNode / Shyft / Solscan pro). I made best-effort attempts against three public endpoints; all refused. The decisive question — whether the deployer wallet is funded from an address tied to `thedotmack` — cannot be answered from this host as configured. If/when access exists: run `getSignaturesForAddress` walked backwards until empty, identify the oldest signature, `getTransaction` on it, extract fee-payer pubkey, then walk that pubkey's own funding history.
-2. **Full stargazer distribution past page 400 (~26,000 stars).** GitHub REST caps out. Need GraphQL v4 with `repository { stargazers(first: 100, after: CURSOR) }` or a pre-built archive (e.g. `gharchive.org` BigQuery). Without it, I can only speak to ~60% of the star graph.
-3. **Binary rebuild policy.** Resolved in §6.A and [`evidence/binary/rebuild-policy.md`](evidence/binary/rebuild-policy.md): the committed Mach-O is stale and not rebuilt by CI, but the normal hook/CLI path appears to run `worker-service.cjs`, not that binary.
-4. **Whether `$CMEM` deployer is same operator as `cmem.ai` registrant.** Only a paid RPC + Cloudflare registrant data would close this. Cloudflare WHOIS is privacy-protected (no registrant surfaced in the RDAP response).
-5. **31 stale README translations flagged in the prior pass.** I did not fully review the `docs/i18n/` tree in this session (time triage) — the earlier note that they still show `version-6.5.0` and omit the `$CMEM` section was not re-verified but is consistent with the English README's version-6.5.0 badge I observed at HEAD.
-6. **Stargazer star-per-day curve anomaly detection.** Requires the full sorted stream; my pagination sample biases the histogram. The profile-sample at n=200 showing 0/2% young-account rates is the strongest evidence I have, and it points toward organic.
+2. **Whether `$CMEM` deployer is same operator as `cmem.ai` registrant.** Only paid RPC access plus non-public Cloudflare registrant data would close this. Cloudflare WHOIS is privacy-protected, and the public RDAP response does not surface a registrant.
+
+The earlier open questions around stargazer coverage, binary rebuild policy, and translated README staleness are now resolved in §§6-8.
 
 ---
 
@@ -482,7 +473,7 @@ This is a **documented context-injection path**. The `/api/import` endpoint is i
 
 The only access control is localhost-binding + 300 req/min shared across all callers. No API key, no HMAC, no token. This matches the project's stated design (CLAUDE.md Pro Features: *"All worker API endpoints on localhost:37777 remain fully open and accessible"*).
 
-### E. `docs/i18n/` staleness — broader than the prior note
+### E. `docs/i18n/` staleness — validated across all translations
 
 - **32 translated README files**.
 - **32/32** carry the `version-6.5.0` shields.io badge (project is at 12.3.9+2).
@@ -526,23 +517,25 @@ Reading the in-tree `CLAUDE.md` (the AI-development-instructions file shipped wi
 
 ## 7. Addendum summary
 
-Eight follow-ups pursued. Most leave the initial assessment intact; the binary runtime question narrows after checking the release path:
+The follow-up work resolved several open questions and added two later evidence sections:
 
 - The binary-staleness finding is **narrowed**: the committed Mach-O is stale and not rebuilt by CI, but the normal hook/CLI path appears to use `worker-service.cjs`, so this is not evidence of a normal macOS-vs-Linux runtime split.
 - The `/api/import` unauthenticated-ingest claim is **confirmed verbatim** in the handler source: `Array.isArray()` is the only validation.
 - The i18n staleness claim is **confirmed with precision**: **0/32** translated READMEs mention `$CMEM` while English does.
+- The GraphQL stargazer pass resolves the REST page-400 cap and updates Priority 7 to a full-corpus finding: real organic popularity plus a measurable amplification layer.
+- The issue-tracker pass adds software-quality and governance evidence: current-version bug reports, not-planned/locked closure rates, and the confirmed April interaction-limit window.
 
-Nothing in the follow-up introduces new red flags; the `openclaw/install.sh`, the workflows, and the `publicdata.works` contributor are all **cleared**. The OpenClaw ecosystem (`openclaw.ai` live, `openclaw.dev` dead) confirms OpenClaw as the author's business-side product line.
+The `openclaw/install.sh`, the workflow deploy path, and the `publicdata.works` contributor are cleared in the narrower sense checked here. The OpenClaw ecosystem (`openclaw.ai` live, `openclaw.dev` dead) confirms OpenClaw as the author's business-side product line.
 
-*Follow-up artifacts: workflow YAMLs read in place at `.github/workflows/`; middleware and DataRoutes TypeScript read in place at `src/services/worker/{http/middleware.ts,worker/http/routes/DataRoutes.ts}`. No new files saved.*
+*Follow-up artifacts: workflow YAMLs read in place at `.github/workflows/`; middleware and DataRoutes TypeScript read in place at `src/services/worker/{http/middleware.ts,worker/http/routes/DataRoutes.ts}`; saved artifacts under [`evidence/stargazers/`](evidence/stargazers/) and [`evidence/software-quality/`](evidence/software-quality/).*
 
 ---
 
-## 8. Priority 7 revisited — GraphQL full-corpus stargazer review
+## 8. Priority 7 detail — GraphQL full-corpus stargazer review
 
-The initial REST-API pass in Priority 7 hit GitHub's 40k pagination cap, leaving 26k stars unreachable and the amplification question at *medium confidence / not obviously amplified in the accessible slice*. The GraphQL API has no such cap. With the `gh` CLI already authenticated (scopes: `gist, read:org, repo, workflow`) and a lean query (omitting `email` and `contributionsCollection` which require extra scope or exceed resource budgets), I paginated all **66,433 stars** into `stars/stars-graphql.jsonl` (≈13 MB). The first star is `vlasky @ 2025-09-09T06:44:10Z`; the last is `ajankuv @ 2026-04-23T23:33:17Z` — i.e. the full graph at pin. Per-day CSV saved at `stars/per-day.csv`.
+The initial REST-API pass in Priority 7 hit GitHub's 40k pagination cap and only covered the oldest slice of the graph. The GraphQL API resolves that cap. With the `gh` CLI already authenticated (scopes: `gist, read:org, repo, workflow`) and a lean query (omitting `email` and `contributionsCollection` which require extra scope or exceed resource budgets), I paginated all **66,433 stars** into [`evidence/stargazers/stars-graphql.jsonl.gz`](evidence/stargazers/stars-graphql.jsonl.gz). The first star is `vlasky @ 2025-09-09T06:44:10Z`; the last is `ajankuv @ 2026-04-23T23:33:17Z` — i.e. the full graph at pin. Per-day CSV saved at [`evidence/stargazers/per-day.csv`](evidence/stargazers/per-day.csv).
 
-**The full-corpus signal revises the Priority 7 conclusion: there is a measurable amplification layer, rising over time and peaking in the April 13–20 week (the largest single week in the repo's history at 14,575 stars).** The repo remains majority-organic — 77% of stars come from accounts over 2 years old — but the amplification layer on top is visible in the data.
+**The full-corpus signal updates the Priority 7 conclusion: there is a measurable amplification layer, rising over time and peaking in the April 13 calendar week (the largest Monday-Sunday week in the repo's history at 13,546 stars).** The repo remains majority-organic — 77% of stars come from accounts over 2 years old — but the amplification layer on top is visible in the data.
 
 ### Account-age distribution (full corpus)
 
@@ -590,7 +583,7 @@ The throwaway rate rises materially from the 3.3% pre-amplification baseline to 
 
 ### The April 13 cohort
 
-The April 13-20 week (14,575 stars, ~22% of the full corpus) has the heaviest account-quality signals in the whole dataset:
+The April 13 calendar week (13,546 stars, ~20% of the full corpus) has the heaviest account-quality signals in the whole dataset:
 - **throwaway: 13.1%** (vs 3.3% baseline — a 4× signal)
 - **<30d: 5.1%** (vs 0.9% baseline — a 5.7× signal)
 - **<1d: 1.2%** (vs 0% baseline — pure signal)
@@ -619,7 +612,7 @@ The 77% >2-year-old cohort is real. `thedotmack` (account from 2011) starred his
 
 ### Updated Priority 7 assessment
 
-**High confidence: measurable star-count amplification is present, rises materially over time, and peaks in the final week before this review pin.** The 34k → 66k jump noted between prior passes overlaps heavily with the April 13-20 week: that week alone (14,575 stars) is closer to the delta than to ordinary organic growth. The baseline rate (pre-amplification) was ~3% throwaway / 0% <1d; the peak rate is 13% throwaway / 1.2% <1d / 0.78% <1h. That is a sustained elevated signal across weekly cohorts, not an isolated outlier.
+**High confidence: measurable star-count amplification is present, rises materially over time, and peaks in the final week before this review pin.** The growth from roughly 34k to 66k stars observed during review overlaps heavily with the April 13 calendar week: that week alone accounts for 13,546 stars, far above ordinary organic growth in this repo's history. The baseline rate (pre-amplification) was ~3% throwaway / 0% <1d; the peak rate is 13% throwaway / 1.2% <1d / 0.78% <1h. That is a sustained elevated signal across weekly cohorts, not an isolated outlier.
 
 This does not mean the repo is fake. It means the advertised star count (66k+) **over-represents organic developer interest by roughly the amplification delta** — call it 9,000 to 13,000 stars of inorganic amplification above the baseline, concentrated in the last three months.
 
@@ -730,7 +723,7 @@ Days with zero new issues filed from any author, grouped into consecutive runs o
 
 These are all pre-adoption and would only detect a full tracker-disable (`has_issues: false`), not interaction-limit. Included for completeness.
 
-### 9.4 Interpretation
+### 9.6 Interpretation
 
 Individually no signal is disqualifying:
 
