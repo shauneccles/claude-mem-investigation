@@ -9,7 +9,7 @@ Backs [`../../REPORT.md`](../../REPORT.md) §8 Priority 7 revisited.
 | [`stars-graphql.jsonl.gz`](stars-graphql.jsonl.gz) | All 66,433 stargazer records (≈13 MB gzipped to ≈2 MB). One JSON edge per line: `starredAt` + user metadata (login, createdAt, followers, following, repositories). Fetched via GraphQL v4 on 2026-04-24. |
 | [`per-day.csv`](per-day.csv) | Per-day account-quality signal table: `day,stars,throwaway_pct,fresh_30d_pct,fresh_7d_pct,fresh_1d_pct,fresh_1h_pct,bot_pattern_pct`. 196 rows, one per day the repo has been starred. |
 | [`analysis.md`](analysis.md) | Key numbers, tables, and the top-20 spike days. |
-| [`april-cohort-sample.md`](april-cohort-sample.md) | A sample of the April 13–20 cohort showing the repeated suffix login pattern. |
+| [`april-cohort-sample.md`](april-cohort-sample.md) | A sample of the April 13 calendar-week cohort showing the repeated suffix login pattern. |
 | [`weekly-star-volume.png`](weekly-star-volume.png) | Chart: stars added per calendar week across the project's life. |
 | [`weekly-account-quality-signals.png`](weekly-account-quality-signals.png) | Chart: account-quality signals (throwaway %, <30d %, <1d %) per week. |
 
@@ -39,7 +39,7 @@ The red "0 repos + 0 followers" line is the cleanest signal. It sits at ~3% thro
 
 ## Headline numbers
 
-| metric | baseline (pre-2025-12, n=454) | full corpus (n=66,433) | April 13-20 peak week (n=14,575) |
+| metric | baseline (pre-2025-12, n=454) | full corpus (n=66,433) | April 13 calendar week (n=13,546) |
 |---|---|---|---|
 | throwaway-shape (0 repos + 0 followers) | 3.3% | 9.3% | **13.1%** |
 | account <30d old at starring | 0.9% | 3.9% | 5.1% |
@@ -54,4 +54,4 @@ The star graph has a measurable amplification layer, rising materially and conce
 
 77% of stargazers have accounts >2 years old — the repo's core popularity is real. The amplification layer is additive, not a replacement for the organic interest.
 
-See [`analysis.md`](analysis.md) for the weekly-cohort table showing the signal rising over time, and [`april-cohort-sample.md`](april-cohort-sample.md) for a representative slice of the April 13-20 cohort with repeated suffix login patterns.
+See [`analysis.md`](analysis.md) for the weekly-cohort table showing the signal rising over time, and [`april-cohort-sample.md`](april-cohort-sample.md) for a representative slice of the April 13 calendar-week cohort with repeated suffix login patterns.

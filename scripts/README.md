@@ -55,7 +55,7 @@ uv run plot_charts.py
 - `issues-graphql.jsonl` — one flattened issue per line: `{number, title, state, stateReason, locked, createdAt, closedAt, comments, labels, author, authorAssociation}`
 - `per-day.csv` — `day, stars, throwaway_pct, fresh_30d_pct, fresh_7d_pct, fresh_1d_pct, fresh_1h_pct, bot_pattern_pct`
 - `issues-per-day.csv` — `day, opened, opened_external, opened_owner, opened_contributor, unique_external_authors, closed_completed, closed_not_planned, closed_duplicate, closed_reopened`
-- stdout: headline tables (top spike days, weekly rollup, cohort baselines, account-age distribution, creation-gap candidates, high-volume not-planned closure days, author-association distribution, insider-login hits)
+- stdout: headline tables (top spike days, weekly rollup, cohort baselines, account-age distribution, creation-gap candidates, high-volume not-planned closure days, author-association distribution, project-adjacent login hits)
 
 ## Reproducibility
 

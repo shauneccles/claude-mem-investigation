@@ -48,7 +48,7 @@
 - **`epstein-mode` path references** first at `8bca13a9` 2025-12-23 and expanded at `2eaef1f5` 2026-01-30 (*"feat: implement ragtime email investigation with self-iteration and cleanup"*).
 - **$CMEM README section 2026-01-13** (`8990a788` *"Update README with $CMEM token details"*, followed by four more commits the same evening).
 - **EnvManager centralization 2026-01-17** (`006ff401` *"fix: use centralized credentials from ~/.claude-mem/.env to prevent API key hijacking"*). This is framed as a *defensive* change — interesting given what came later.
-- **OpenClaw scaffold 2026-02-07** (`89333434`). OpenClaw has its own `@openclaw.ai` email domain (committer `Jarvis <jarvis@openclaw.ai>` appears Apr 2026).
+- **OpenClaw-related scaffold 2026-02-07** (`89333434`). The claude-mem repo adds OpenClaw plugin/installer code; a separate `Jarvis <jarvis@openclaw.ai>` committer identity appears in Apr 2026. This shows OpenClaw-related integration in the repo. OpenClaw itself is separate.
 - **Mach-O binary 2026-02-23** (`c2c3e306` *"chore: bump version to 10.3.2"*) — the committed macOS binary is a snapshot of code state at this date.
 - **law-study mode 2026-03-08** (`97ea9e45` *"feat: add law-study mode for law students"*).
 - **Read-hook timeline injection 2026-03-18** (`fb9d917f` *"feat: inject file observation timeline on PreToolUse Read hook"*, by Alex Newman with Claude Opus 4.6 as co-author). 430 insertions, 194 deletions across 9 files, including +142 lines in the new `src/cli/handlers/file-context.ts`.
@@ -207,7 +207,7 @@ The source-level behavior is this: the hook respects a user-supplied `limit` if 
 
 ---
 
-### Priority 5 — Author's other projects
+### Priority 5 — Author's public repos and adjacent integrations
 
 **Commands run**
 
@@ -257,13 +257,13 @@ The source-level behavior is this: the hook respects a user-supplied `limit` if 
 
 **Pattern observations.**
 
-1. There is a recognizable **ecosystem** around the author's LLM/agent tooling: `claude-mem`, `claude-mem-docs`, `claude-commands`, `mackeroni-skills`, `sequential-thinking-skill`, `mcp-client-cli`, `rad-mem` (*"domain-flexible temporal intelligence — apply to any document corpus"* — this framing is notable: it's the same observation pipeline with a generic-corpus label), `crab-mem` (*"continuous cognition for OpenClaw agents"* — explicitly ties the memory primitive to OpenClaw), `crabspace-app`/`crabspace-skill`, `aims`/`aims-v2` (*"AI Messenger Service — watch AI bots communicate"* and *"live workspace sync dashboard for OpenClaw AI agents"*).
-2. **OpenClaw is not a hypothetical side project; it has an entire satellite ecosystem** of repos, its own `@openclaw.ai` committer identity, and marketing at `docs.openclaw.ai/plugin` and `openclaw.dev/docs/installation` (both referenced as string literals in `claude-mem` source). The author treats OpenClaw as a separate product line; claude-mem is upstream infrastructure.
+1. There is a recognizable **ecosystem** around the author's LLM/agent tooling: `claude-mem`, `claude-mem-docs`, `claude-commands`, `mackeroni-skills`, `sequential-thinking-skill`, `mcp-client-cli`, `rad-mem` (*"domain-flexible temporal intelligence — apply to any document corpus"* — this framing is notable: it's the same observation pipeline with a generic-corpus label), `crab-mem` (*"continuous cognition for OpenClaw agents"* — ties an author-owned memory repo to OpenClaw), `crabspace-app`/`crabspace-skill`, `aims`/`aims-v2` (*"AI Messenger Service — watch AI bots communicate"* and *"live workspace sync dashboard for OpenClaw AI agents"*).
+2. **OpenClaw is a separate adjacent product surface; this evidence is about integrations.** `openclaw.ai` and `docs.openclaw.ai` are live, `openclaw.dev` is referenced in source but dead, and the claude-mem repo contains OpenClaw plugin/installer code. Several author-owned repos describe themselves as for OpenClaw agents. The finding is that the author built OpenClaw-related adapters/integrations.
 3. **`MemeDeck` (2026-04-10): *"Next.js 15 reference implementation of a card-game-style Solana memecoin trading…"*** — the author has a second, separate interest in Solana memecoin mechanics, created two weeks before this review pin.
 4. No memecoin-launch-then-abandon pattern in the author's prior work is visible; `$CMEM` appears to be the first.
 5. Commit-activity signature: ~63% of commits are Alex Newman personally, ~10% are Copilot, another ~16% is `MAESTRO:` (an AI tool, probably an automated PR triager) — so ~26% of commits are explicitly AI-tooling-authored. That's high but not atypical for 2026.
 
-**Interpretation.** This is a solo operator running a broad LLM-adjacent toolchain. The repo set does **not** establish a prior history of "build product → launch token → abandon." It does establish that the author has a demonstrated interest in both the agent-memory space *and* the Solana memecoin space, and that OpenClaw is treated as the business-side product while claude-mem is treated as the distribution-side product. The `$CMEM` launch fits into a coherent operator story: the memory plugin was the adoption vehicle, the token is the monetization experiment, the OpenClaw / observation infrastructure is the long-term product line.
+**Interpretation.** This is a solo operator running a broad LLM-adjacent toolchain. The repo set does **not** show a prior history of "build product → launch token → abandon." It shows that the author has a demonstrated interest in both the agent-memory space *and* the Solana memecoin space, and that several author-owned repos integrate with or reference OpenClaw. The narrower story is: claude-mem started as the adoption vehicle, `$CMEM` is the monetization experiment, and the author's public repos include observation/messaging tools that can sit alongside OpenClaw.
 
 **Confidence: medium.** The raw `gh` data is high-confidence; the operator-intent narrative is inferential.
 
@@ -356,7 +356,7 @@ Market snapshot captured **2026-04-24 UTC**; these values are volatile.
 
 **UF-7 — No cryptographic operations in the product code.** Zero hits for `crypto.subtle`, `createCipheriv`, `createDecipheriv`, `createSign`, `createVerify`, `createHmac` in `src/`. The `createSignalHandler` in `ProcessManager.ts` is OS signals, not crypto. The observation DB is plain SQLite with no encryption, and the HTTP API has no HMAC/JWT — confirming the "no auth on localhost:37777" concern from a different angle (there is no crypto primitive available in the codebase to enforce auth even if someone wanted to bolt it on).
 
-**UF-8 — `crab-mem` is explicitly labeled as "for OpenClaw agents."** That is a strong ecosystem signal: the author designs the memory primitive as an OpenClaw-layer service, not just a Claude-Code-layer one. The crab-mem repo is archived (2026-02-10), possibly rolled back into claude-mem, but the description on its README (*"Continuous cognition for OpenClaw agents. One command. Better memory."*) tells you where the product line is going.
+**UF-8 — `crab-mem` is explicitly labeled as "for OpenClaw agents."** That is an ecosystem signal: an author-owned memory repo was positioned as an OpenClaw-agent integration, not just a Claude-Code-layer tool. The crab-mem repo is archived (2026-02-10), possibly rolled back into claude-mem. This is an integration signal only.
 
 **UF-9 — `MemeDeck` and the author's interest in memecoin mechanics.** Created 2026-04-10, described as *"Next.js 15 reference implementation of a card-game-style Solana memecoin trading..."* The author is actively building infrastructure around Solana memecoin trading alongside the LLM tooling. This does not establish anything about `$CMEM` specifically but corrects any impression that the token was a one-off detour.
 
@@ -379,12 +379,12 @@ The earlier open questions around stargazer coverage, binary rebuild policy, and
 
 - What the code says about itself: the top-level `CLAUDE.md` names "tunnel provisioning" as a Pro integration point and states that "all worker API endpoints on localhost:37777 remain fully open and accessible" as a design principle. That is the author's own stated roadmap, in writing.
 - What the source shows: zero secrets-redaction anywhere in `src/`; unauthenticated `POST /api/import`; the Read-hook injecting timeline observations as `additionalContext` with `permissionDecision: allow`. Those three together create a context-injection loop in the code. I'm not claiming the loop was put there to be exploited — I'm pointing out it exists.
-- What the ecosystem shows: `openclaw.ai` publicly describes itself as "Personal AI Assistant" with a config schema for streaming observations to six messaging channels. `crab-mem` (archived), `aims`/`aims-v2`, `crabspace-*`, and the `openclaw.ai` committer identity indicate OpenClaw is a parallel product line the author is publicly building on top of the same observation infrastructure. That is a factual description of the author's public work.
+- What the ecosystem shows: `openclaw.ai` publicly describes itself as "Personal AI Assistant" with a config schema for streaming observations to six messaging channels. `crab-mem` (archived), `aims`/`aims-v2`, `crabspace-*`, and the in-repo OpenClaw plugin/installer code indicate the author has built OpenClaw-related adapters and observation tooling. The point is integration.
 - What the commit history shows: feature-addition acceleration over the last 60 days. The Read-hook rewrite (2026-03-18), the `ANTHROPIC_BASE_URL` override (2026-04-09), and the Telegram notifier (2026-04-22) are all post-March 2026. The project's trajectory is not static.
 - What I cleared: no unexpected outbound data paths, no hidden install endpoints, no hardcoded bearer tokens, no hostname / user / date-gated logic, no cryptographic primitives in the source. The committed Mach-O binary is a strict subset of the TypeScript source, not a superset. These are **not** findings against the project.
 - What I could not determine from this environment: the `$CMEM` deployer wallet identity (requires a paid Solana RPC). Without that I cannot falsify the README's "3rd-party embrace" framing; I've documented the observable on-chain timing and left the interpretation open.
 
-My read is: a memory plugin that has accumulated a substantial observation-and-notification surface over eight months, whose own design principles explicitly contemplate remote access to its local database via a Pro tier, whose quality-of-delivery is under measurable pressure (see §9), whose public star count has a measurable inorganic amplification layer, and whose author is publicly building a separate consumer product on top of the same infrastructure. The question isn't whether any of that is malicious today — I'm not claiming it is. The question is whether the trajectory and the software quality are a place a given user wants their agent's credentials to live.
+My read is: a memory plugin that has accumulated a substantial observation-and-notification surface over eight months, whose own design principles explicitly contemplate remote access to its local database via a Pro tier, whose quality-of-delivery is under measurable pressure (see §9), whose public star count has a measurable inorganic amplification layer, and whose author has built OpenClaw-related adapters and observation tooling alongside it. The question isn't whether any of that is malicious today — I'm not claiming it is. The question is whether the trajectory and the software quality are a place a given user wants their agent's credentials to live.
 
 ---
 
@@ -494,14 +494,14 @@ The English `README.md` at HEAD also carries the `version-6.5.0` badge (that pie
 
 HTTP 200 from `https://publicdata.works/`, served by Cloudflare. Title: **"Public Data Works"**. Description from the page: *"Public Data Works is an engineering and design studio. We build tools that help make data useful to the public. We work with mission-aligned organizations..."* This is a real engineering studio. The three commits attributed to `Claude <rajiv@publicdata.works>` on 2026-01-21 are AI-assisted contributions from Rajiv Sinclair (the studio's principal, per his other public footprint) using an unusual-but-not-malicious co-author attribution pattern. **Cleared.**
 
-### H. OpenClaw domains — `openclaw.ai` is the business, `openclaw.dev` does not exist
+### H. OpenClaw domains — separate product surface
 
 - `openclaw.ai` → HTTP 200, Vercel. Title: **"OpenClaw — Personal AI Assistant"**. 222,992 bytes of landing page.
 - `www.openclaw.ai` → 307 → `openclaw.ai`.
 - `docs.openclaw.ai` → HTTP 200, Cloudflare.
 - `api.openclaw.ai`, `openclaw.dev`, `docs.openclaw.dev`, `install.openclaw.ai` → **DNS does not resolve**. The `openclaw.dev/docs/installation` URL that appears in `claude-mem`'s source is **a dead link at pin.** This means (a) either the project was planning to use a `.dev` domain and abandoned it, or (b) a `.dev` domain is planned for future cut-over. Either way the installer (`openclaw/install.sh`) and in-tree source point users at a URL that currently does not resolve.
 
-OpenClaw publicly describes itself as a **"Personal AI Assistant"** — i.e. a consumer-facing agent product. The architectural position is that `claude-mem` is memory-infrastructure feeding an OpenClaw assistant, with `aims`/`aims-v2` as the messaging/observability front-ends. The ecosystem is real; the monetization vehicle is OpenClaw, not `claude-mem`.
+OpenClaw publicly describes itself as a **"Personal AI Assistant"** — i.e. a consumer-facing agent product. OpenClaw itself is separate from Alex Newman's author-owned repo set. The claude-mem repo contains OpenClaw plugin/installer code, and several author-owned repos describe themselves as OpenClaw-agent tools. That supports an integration/ecosystem finding.
 
 ### I. CLAUDE.md observations surfaced during the follow-up
 
@@ -525,7 +525,7 @@ The follow-up work resolved several open questions and added two later evidence 
 - The GraphQL stargazer pass resolves the REST page-400 cap and updates Priority 7 to a full-corpus finding: real organic popularity plus a measurable amplification layer.
 - The issue-tracker pass adds software-quality and governance evidence: current-version bug reports, not-planned/locked closure rates, and the confirmed April interaction-limit window.
 
-The `openclaw/install.sh`, the workflow deploy path, and the `publicdata.works` contributor are cleared in the narrower sense checked here. The OpenClaw ecosystem (`openclaw.ai` live, `openclaw.dev` dead) confirms OpenClaw as the author's business-side product line.
+The `openclaw/install.sh`, the workflow deploy path, and the `publicdata.works` contributor are cleared in the narrower sense checked here. The OpenClaw ecosystem (`openclaw.ai` live, `openclaw.dev` dead, OpenClaw code in-tree) confirms an adjacent integration surface.
 
 *Follow-up artifacts: workflow YAMLs read in place at `.github/workflows/`; middleware and DataRoutes TypeScript read in place at `src/services/worker/{http/middleware.ts,worker/http/routes/DataRoutes.ts}`; saved artifacts under [`evidence/stargazers/`](evidence/stargazers/) and [`evidence/software-quality/`](evidence/software-quality/).*
 
@@ -579,7 +579,7 @@ Pre-December 2025 (when the repo was essentially unknown), throwaway rate was 3.
 | **2026-04-13** | **13,546** | **13.1** | **5.1** | **1.2** |
 | 2026-04-20 | 3,249 | — | — | — |
 
-The throwaway rate rises materially from the 3.3% pre-amplification baseline to 13.1% in the April 13-20 peak week. That is a 4× increase, concurrent with the largest single star-week in the repo's life.
+The throwaway rate rises materially from the 3.3% pre-amplification baseline to 13.1% in the April 13 calendar week. That is a 4× increase, concurrent with the largest single star-week in the repo's life.
 
 ### The April 13 cohort
 

@@ -142,14 +142,14 @@ def print_account_age_buckets(records: list) -> None:
 
 def print_baseline_vs_recent(records: list) -> None:
     baseline = [r for r in records if r["starredAt"] < "2025-12-01"]
-    # April 13-20 peak week
-    peak = [r for r in records if "2026-04-13" <= r["starredAt"][:10] <= "2026-04-20"]
+    # April 13 calendar week
+    peak = [r for r in records if "2026-04-13" <= r["starredAt"][:10] <= "2026-04-19"]
     print("\n=== baseline vs peak ===")
     print(f"  baseline (pre-2025-12, n={len(baseline)})")
     _emit_signal_row(baseline)
     print(f"  full corpus (n={len(records)})")
     _emit_signal_row(records)
-    print(f"  April 13-20 peak week (n={len(peak)})")
+    print(f"  April 13 calendar week (n={len(peak)})")
     _emit_signal_row(peak)
 
 
@@ -166,13 +166,13 @@ def _emit_signal_row(rs: list) -> None:
 
 
 def print_insider_matches(records: list) -> None:
-    insiders = {
+    project_adjacent_logins = {
         "thedotmack", "alex-newman", "AlexNewman", "claude-memory",
         "openclaw", "jarvis", "rajivsinclair", "publicdata-works",
         "bigphoot", "bigph00t", "Ousama", "ousamabenyounes",
     }
-    hits = [r for r in records if r["node"]["login"] in insiders]
-    print(f"\n=== insider-login matches: {len(hits)} ===")
+    hits = [r for r in records if r["node"]["login"] in project_adjacent_logins]
+    print(f"\n=== project-adjacent login matches: {len(hits)} ===")
     for h in hits:
         print(f"  {h['starredAt']}  {h['node']['login']}  (account created {h['node']['createdAt'][:10]})")
 

@@ -1,6 +1,6 @@
-# Suspicious cohort — sample of the April 13–20 peak week
+# April cohort — sample of the April 13 calendar week
 
-14,575 stars in eight days. 13.1% throwaway-shape (0 repos + 0 followers). 1.2% of accounts were created within 24 hours of starring. 0.78% within one hour.
+13,546 stars in the Monday-Sunday calendar week. 13.1% throwaway-shape (0 repos + 0 followers). 1.2% of accounts were created within 24 hours of starring. 0.78% within one hour.
 
 Below is a random sample of accounts from that cohort where the account was less than one day old when it starred the repo.
 
@@ -23,7 +23,7 @@ Every account in this sample has 0 or 1 public repo, 0–2 followers, and was cr
 
 - `odyssey-**work**`, `kauaesyt20-**prog**`, `brendawong-**max**`, `leonardobernardo199824-**jpg**`, `blockbirdbot-**hub**`, `NoahC963-**jpg**`, `qq1834639311-**cloud**`, `gogmad-**Ghub**`, `kaingaji-**cyber**`
 
-Inventory of observed suffixes across the full April 13–20 cohort: `-work`, `-prog`, `-max`, `-jpg`, `-hub`, `-cyber`, `-cloud`, `-web`, `-pixel`, `-Ghub`.
+Inventory of observed suffixes across the full April 13 calendar-week cohort: `-work`, `-prog`, `-max`, `-jpg`, `-hub`, `-cyber`, `-cloud`, `-web`, `-pixel`, `-Ghub`.
 
 The suffix pattern looks consistent with dictionary-plus-suffix account generation — a script or workflow concatenating a base noun/name with one of a small pool of suffixes. I wouldn't expect organic users to show this pattern this consistently.
 
@@ -41,7 +41,7 @@ Three of five match the suffix pattern (`-pixel`, `-cyber`, `-web`); the other t
 
 ```bash
 cd scripts
-python analyze_stars.py --sample-cohort 2026-04-13 2026-04-20 --age-max-days 1
+python analyze_stars.py --sample-cohort 2026-04-13 2026-04-19 --age-max-days 1
 ```
 
 Or by hand, with the jsonl decompressed:
@@ -53,7 +53,7 @@ import sys, json
 for line in sys.stdin:
     e = json.loads(line)
     s = e["starredAt"][:10]
-    if "2026-04-13" <= s <= "2026-04-20":
+    if "2026-04-13" <= s <= "2026-04-19":
         from datetime import datetime
         c = datetime.fromisoformat(e["node"]["createdAt"].replace("Z","+00:00"))
         st = datetime.fromisoformat(e["starredAt"].replace("Z","+00:00"))

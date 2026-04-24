@@ -27,7 +27,7 @@ Dataset: `stars-graphql.jsonl.gz` (66,433 records). Source: `gh api graphql` on 
 | 19 | 2026-04-21 | 880 |
 | 20 | 2026-04-19 | 874 |
 
-11 of the top 20 are in April 2026. The single biggest week (Mon 2026-04-13 → Sun 2026-04-20) carried 14,575 stars — 22% of the entire all-time star count.
+11 of the top 20 are in April 2026. The single biggest calendar week (Mon 2026-04-13 -> Sun 2026-04-19) carried 13,546 stars — about 20% of the entire all-time star count.
 
 ## Weekly rollup
 
@@ -87,7 +87,7 @@ Reading the throwaway column: 3.3% in the organic baseline period (pre-December 
 
 Only 1 hour in the entire dataset had ≥5 accounts all created within the same hour starring in the same hour: `2026-04-16T05Z` with 5 accounts (`dwala1983zuma-pixel`, `lawnthings`, `yashdeeparya939-cyber`, `GoykD`, `reddameronasiempresiempre-web`). The amplification pattern is spread out rather than burst-clustered.
 
-## Insider logins
+## Project-adjacent login check
 
 Three logins in the dataset match obvious insiders:
 
@@ -97,7 +97,7 @@ Three logins in the dataset match obvious insiders:
 | `bigph00t` (committer, 5 commits as Alexander Knigge) | 2024 account | 2025-12-17 |
 | `ousamabenyounes` (top contributor, 20 commits) | 2012 account | 2026-03-13 |
 
-No `claude-memory`, `openclaw`, `jarvis`, `rajivsinclair` stars observed. No obvious sock-puppet activity.
+No `claude-memory`, `openclaw`, `jarvis`, `rajivsinclair` stars observed. This is only a check for obvious project-adjacent login names.
 
 ## Bot-pattern logins (overall 3,447 / 5.2%)
 
