@@ -1,0 +1,60 @@
+# SHA-256 hashes of artefacts that are NOT re-hosted in this repository.
+#
+# These artefacts are either too large, derivative of upstream third-party
+# code, or live on remote infrastructure. Use the reproducer commands below
+# each entry to obtain the artefact yourself and verify its hash against the
+# recorded value.
+#
+# All hashes captured against commit 8ace1d9c84e5ce455356cf852c370ea625e3b1d1
+# of github.com/thedotmack/claude-mem on 2026-04-24.
+
+
+# The 63 MB Mach-O arm64 Bun-compiled worker binary committed in the repo.
+# Introduced in commit c2c3e306 ("chore: bump version to 10.3.2", 2026-02-23)
+# and never rebuilt since.
+#
+#   git clone https://github.com/thedotmack/claude-mem.git
+#   cd claude-mem && git checkout 8ace1d9c
+#   sha256sum plugin/scripts/claude-mem
+#
+dfd8597261d2c57f76e483783fbd20a2aa97e657b2a6117a9327d830f987f2a0  plugin/scripts/claude-mem
+
+
+# The 1.98 MB minified CommonJS worker bundle shipped in the repo. The current
+# hook and CLI paths run this through bun-runner.js.
+#
+#   sha256sum plugin/scripts/worker-service.cjs
+#
+f641bd11e7ef5184877592a1d5dc704064c79d5f62abc06019d1c1328f15080b  plugin/scripts/worker-service.cjs
+
+
+# The 3.1 MB JavaScript bundle extracted from the __BUN.__bun section of
+# the Mach-O binary above. Derivative of upstream — not re-hosted.
+# Reproduce with:
+#
+#   python scripts/extract_bun_section.py path/to/plugin/scripts/claude-mem
+#
+fd189159fc07898ec428524721702ec2712dcb0c92471fd0f09c1c69aa367829  extracted/bun-section.bin
+
+
+# The stale Windows executable included in the published claude-mem@12.3.9
+# npm tarball under dist/binaries/. This file is not present in the pinned
+# GitHub tree or the v12.3.9 tag tree.
+# Reproduce with:
+#
+#   npm pack claude-mem@12.3.9
+#   tar -xzf claude-mem-12.3.9.tgz
+#   sha256sum package/dist/binaries/worker-service-v10.3.1-win-x64.exe
+#
+f96c5a07f50de316b423305b41d0d5010a4344feeb595153291c2d5ad46c764a  package/dist/binaries/worker-service-v10.3.1-win-x64.exe
+
+
+# The 66 KB OpenClaw installer served live at install.cmem.ai/openclaw.sh.
+# Verified byte-identical to the repo's openclaw/install.sh at the review SHA.
+# Reproduce with:
+#
+#   curl -sSL https://install.cmem.ai/openclaw.sh | sha256sum
+#   sha256sum openclaw/install.sh      # (after cloning as above)
+#
+78c39b15d15c265af2543cf422ad57e03d9a91494ef4c0a6038fe426085343d4  install.cmem.ai/openclaw.sh
+78c39b15d15c265af2543cf422ad57e03d9a91494ef4c0a6038fe426085343d4  openclaw/install.sh

@@ -1,0 +1,34 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+/tests/
+
+# Node (in case scripts grow)
+node_modules/
+package-lock.json
+
+# Working artefacts that should never be committed
+*.snap*
+*.snapshot
+*.tmp
+*.bak
+
+# Large / derivative artefacts — reproducible from scripts, not re-hosted
+# (see README.md "What's not in this repo" for rationale)
+/claude-mem/
+/extracted/
+/live-probes/
